@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ElementType } from "react";
 
 /**
  * Anima o conteúdo ao entrar na viewport. Respeita prefers-reduced-motion
@@ -15,7 +15,7 @@ export default function Reveal({
   children: React.ReactNode;
   className?: string;
   delay?: number;
-  as?: keyof JSX.IntrinsicElements;
+  as?: ElementType;
 }) {
   const ref = useRef<HTMLElement | null>(null);
   const [visible, setVisible] = useState(false);
