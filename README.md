@@ -44,11 +44,30 @@ fornecido, o projeto usa **Inter** (fallback da identidade). Para trocar, coloqu
 os arquivos em [`/public/fonts`](public/fonts) e ajuste [`src/lib/fonts.ts`](src/lib/fonts.ts)
 (há instruções no próprio arquivo).
 
+## Banco de dados (Supabase)
+
+1. Crie um projeto no Supabase.
+2. No **SQL Editor**, rode [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
+3. (Opcional) Rode [`supabase/seed.sql`](supabase/seed.sql) para dados de exemplo.
+4. **Authentication → Providers → Email**: desative "Allow new users to sign up".
+5. **Authentication → Users → Add user**: crie o login do admin.
+6. Preencha as variáveis no `.env.local` (e na Vercel).
+
+Buckets criados pela migration: `projects` (público) e `briefing-uploads` (privado).
+
+## Deploy na Vercel
+
+1. Importe o repositório em [vercel.com/new](https://vercel.com/new) (Framework: Next.js).
+2. Em **Settings → Environment Variables**, adicione as variáveis do `.env.example`.
+   As `NEXT_PUBLIC_*` são do tipo **Config**; `SUPABASE_SERVICE_ROLE_KEY` e
+   `RESEND_API_KEY` são **Secret**.
+3. Deploy. Pushes na `main` viram deploy automático.
+
 ## Status
 
 - [x] Base do projeto + design system (temas claro/escuro, tokens da paleta)
 - [x] Home (hero, sobre, trabalhos, serviços, entregáveis, processo, para quem é, CTA)
-- [ ] Página de projeto (`/projetos/[slug]`) + Contato
-- [ ] Schema Supabase + admin de projetos
-- [ ] Sistema de propostas
-- [ ] Sistema de briefings
+- [x] Página de projeto (`/projetos/[slug]`) + Contato
+- [x] Schema Supabase + admin de projetos (upload, publicar, reordenar)
+- [x] Sistema de propostas (builder, página pública, aceite, PDF, tracking)
+- [x] Sistema de briefings (templates, personalização, link único, autosave, respostas)
