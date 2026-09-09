@@ -9,6 +9,8 @@ export type Project = PlaceholderProject & {
   position?: number;
 };
 
+export type ProjectImage = { url: string; alt: string | null; position: number };
+
 /**
  * Retorna os projetos publicados. Se o Supabase não estiver configurado
  * (ou a query falhar), cai para os projetos placeholder — assim a Home
@@ -33,4 +35,47 @@ export async function getPublishedProjects(): Promise<Project[]> {
   } catch {
     return placeholderProjects;
   }
+}
+
+/** Um projeto publicado por slug, com suas imagens. Null se não existir. */
+export async function getProjectBySlug(
+  slug: string
+): Promise<{ project: Project; images: ProjectImage[] } | null> {
+  if (!isSupabaseConfigured()) {
+    const p = placeholderProjects.find((x) => x.slug === slug);
+    return p ? { project: p, images: [] } : null;
+  }
+  try {
+    const supabase = await createClient();
+    const { data: project } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("slug", slug)
+      .eq("published", true)
+      .maybeSingle();
+    if (!project) return null;
+
+    const { data: images } = await supabase
+      .from("project_images")
+      .select("url, alt, position")
+      .eq("project_id", project.id)
+      .order("position", { ascending: true });
+
+    return { project: project as Project, images: (images || []) as ProjectImage[] };
+  } catch {
+    return null;
+  }
+}
+
+/** Recomendações: mesmo tipo primeiro, completa com outros. Exclui o atual. */
+export async function getRelatedProjects(
+  currentSlug: string,
+  type: string,
+  limit = 3
+): Promise<Project[]> {
+  const all = await getPublishedProjects();
+  const others = all.filter((p) => p.slug !== currentSlug);
+  const sameType = others.filter((p) => p.type === type);
+  const rest = others.filter((p) => p.type !== type);
+  return [...sameType, ...rest].slice(0, limit);
 }
